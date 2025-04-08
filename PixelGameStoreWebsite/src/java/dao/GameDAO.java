@@ -13,35 +13,76 @@ import utils.DBUtils;
 
 public class GameDAO implements IDAO<GameDTO, String>{
 
+    /**
+     * 
+     * @param entity
+     * @return 
+     */
     @Override
     public boolean create(GameDTO entity) {
         return false;
     }
 
+    /**
+     * 
+     * @return 
+     */
     @Override
     public List<GameDTO> readAll() {
         return null;
     }
 
+    /**
+     * 
+     * @param id
+     * @return 
+     */
     @Override
     public GameDTO readById(String id) {
         return null;
     }
 
+    /**
+     * 
+     * @param entity
+     * @return 
+     */
     @Override
     public boolean update(GameDTO entity) {
         return false;
     }
 
+    /**
+     * 
+     * @param id
+     * @return 
+     */
     @Override
     public boolean delete(String id) {
+        String sql = "UPDATE tblGames SET status = 0 WHERE gameID = ?";
+        try {
+            Connection conn = DBUtils.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, id);
+            int n = ps.executeUpdate();
+            return n > 0;
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(GameDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(GameDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return false;
     }
 
+    /**
+     * 
+     * @param searchTerm
+     * @return 
+     */
     @Override
     public List<GameDTO> search(String searchTerm) {
         List<GameDTO> list = new ArrayList<>();
-        String query = "SELECT * FROM tblGames WHERE gameName LIKE ?";
+        String query = "SELECT * FROM tblGames WHERE gameName LIKE ? AND status = 1";
         try {
             Connection conn = DBUtils.getConnection();
             PreparedStatement ps = conn.prepareStatement(query);
@@ -53,7 +94,8 @@ public class GameDAO implements IDAO<GameDTO, String>{
                         rs.getString("gameName"), 
                         rs.getString("developer"), 
                         rs.getString("genre"), 
-                        rs.getDouble("price"));
+                        rs.getDouble("price"),
+                        rs.getBoolean("status"));
                 list.add(game);
             }
         } catch (ClassNotFoundException ex) {
@@ -63,5 +105,7 @@ public class GameDAO implements IDAO<GameDTO, String>{
         }
         return list;
     }
+    
+    
     
 }

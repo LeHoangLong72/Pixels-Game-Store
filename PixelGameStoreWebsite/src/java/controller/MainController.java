@@ -17,22 +17,56 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "MainController", urlPatterns = {"/MainController"})
 public class MainController extends HttpServlet {
 
-    public static final String LOGIN = "login.jsp";
+    private static final String LOGIN = "login.jsp";
+    private static final UserDAO udao = new UserDAO();
+    private static final GameDAO gameDAO = new GameDAO();
     
-    public static final UserDAO udao = new UserDAO();
-    
-    public static final GameDAO gameDAO = new GameDAO();
-    
+    /**
+     * 
+     * @param strUserID
+     * @return 
+     */
     public UserDTO getUserDTO(String strUserID){
         UserDTO user = udao.readById(strUserID);
         return user;
     }
     
+    /**
+     * 
+     * @param strUserID
+     * @param strPassword
+     * @return 
+     */
     public boolean isValidLogin(String strUserID, String strPassword){
        UserDTO user = getUserDTO(strUserID);
        return user != null && user.getPassword().equals(strPassword);
     }
     
+    /**
+     * 
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException 
+     */
+    public void processSearch(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException{
+        String searchTerm = request.getParameter("searchTerm");
+        if (searchTerm == null) {
+            searchTerm = "";
+        }
+        List<GameDTO> listGame = gameDAO.search(searchTerm);
+        request.setAttribute("searchTerm", searchTerm);
+        request.setAttribute("listGame", listGame);
+    }
+    
+    /**
+     * 
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException 
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -49,6 +83,8 @@ public class MainController extends HttpServlet {
                         url = "search.jsp";
                         UserDTO user = getUserDTO(strUserID);
                         request.getSession().setAttribute("user", user);
+                        
+                        processSearch(request, response);
                     }else{
                         url = LOGIN;
                         request.setAttribute("message", "Incorrect UserID or Password!");
@@ -57,9 +93,22 @@ public class MainController extends HttpServlet {
                     url = LOGIN;
                     request.getSession().invalidate();
                 }else if (action.equals("search")) {
-                    String searchTerm = request.getParameter("searchTerm");
-                    List<GameDTO> listGame = gameDAO.search(searchTerm);
-                    request.setAttribute("listGame", listGame);
+                    processSearch(request, response);
+                    url = "search.jsp";
+                }else if (action.equals("delete")) {
+                    String id = request.getParameter("id");
+                    gameDAO.delete(id);
+                    
+                    processSearch(request, response);
+                    url = "search.jsp";
+                }else if (action.equals("add")) {
+                    String gameID = request.getParameter("txtGameID");
+                    String gameName = request.getParameter("txtGameName");
+                    String developer = request.getParameter("txtDeveloper");
+                    String genre = request.getParameter("txtGenre");
+                    double price = Double.parseDouble(request.getParameter("txtPrice"));
+                    
+                    processSearch(request, response);
                     url = "search.jsp";
                 }
             }

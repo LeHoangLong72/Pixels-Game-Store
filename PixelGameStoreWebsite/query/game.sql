@@ -17,6 +17,9 @@ insert into tblGames(gameID, gameName, developer, genre, price) VALUES
 ('G0007', 'Blasphemous', 'The Game Kitchen','Indie', 24.99),
 ('G0008', 'Yume Nikki', 'Kikiyama', 'Adventure', 19.99)
 
+
+alter table tblGames add status bit;
+
  
 
 

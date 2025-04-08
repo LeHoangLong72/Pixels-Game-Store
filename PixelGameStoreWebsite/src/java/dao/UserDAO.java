@@ -12,16 +12,30 @@ import utils.DBUtils;
 
 public class UserDAO implements IDAO<UserDTO, String>{
 
+    /**
+     * 
+     * @param entity
+     * @return 
+     */
     @Override
     public boolean create(UserDTO entity) {
         return false;
     }
 
+    /**
+     * 
+     * @return 
+     */
     @Override
     public List<UserDTO> readAll() {
         return null;
     }
 
+    /**
+     * 
+     * @param id
+     * @return 
+     */
     @Override
     public UserDTO readById(String id) {
         String sql = "SELECT * FROM tblUsers WHERE userID = ?";
@@ -46,16 +60,31 @@ public class UserDAO implements IDAO<UserDTO, String>{
         return null;
     }
 
+    /**
+     * 
+     * @param entity
+     * @return 
+     */
     @Override
     public boolean update(UserDTO entity) {
         return false;
     }
 
+    /**
+     * 
+     * @param id
+     * @return 
+     */
     @Override
     public boolean delete(String id) {
         return false;
     }
 
+    /**
+     * 
+     * @param searchTerm
+     * @return 
+     */
     @Override
     public List<UserDTO> search(String searchTerm) {
         return null;

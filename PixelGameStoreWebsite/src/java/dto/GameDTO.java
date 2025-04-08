@@ -6,16 +6,18 @@ public class GameDTO {
     private String developer;
     private String genre;
     private double price;
+    private boolean status;
 
     public GameDTO() {
     }
 
-    public GameDTO(String gameID, String gameName, String developer, String genre, double price) {
+    public GameDTO(String gameID, String gameName, String developer, String genre, double price, boolean status) {
         this.gameID = gameID;
         this.gameName = gameName;
         this.developer = developer;
         this.genre = genre;
         this.price = price;
+        this.status = status;
     }
 
     public String getGameID() {
@@ -57,6 +59,12 @@ public class GameDTO {
     public void setPrice(double price) {
         this.price = price;
     }
-    
-    
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
 }

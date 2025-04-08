@@ -12,23 +12,29 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
+        <title>Main Page</title>
     </head>
     <body>
         <%
-            UserDTO user = (UserDTO) session.getAttribute("user");
+            if (session.getAttribute("user") != null) {
+                UserDTO user = (UserDTO) session.getAttribute("user");
         %>
 
         <h1>Welcome <%=user.getFullName()%> </h1>
+        
+        <% 
+        String searchTerm = request.getAttribute("searchTerm") + ""; 
+        searchTerm = searchTerm.equals("null") ? "" : searchTerm;
+        %>
 
         <form action="MainController">
             <input type="hidden" name="action" value="logout"/>
             <input type="submit" value="Logout"/>
         </form>
 
-        <form action="MainController" method="post">
+        <form action="MainController">
             <input type="hidden" name="action" value="search"/>
-            Search: <input type="text" name="searchTerm"/>
+            Search: <input type="text" name="searchTerm" value="<%=searchTerm%>"/>
             <input type="submit" value="Search"/>
         </form>
 
@@ -46,6 +52,7 @@
                     <th>Developer</th>
                     <th>Genre</th>
                     <th>Price</th>
+                    <th>Action</th>
                 </tr>
             </thead>
 
@@ -61,14 +68,21 @@
                     <td><%=game.getDeveloper()%></td>
                     <td><%=game.getGenre()%></td>
                     <td><%=game.getPrice()%>$</td>
+                    <td><a href="MainController?action=delete&id=<%=game.getGameID()%>&searchTerm=<%=searchTerm%>">
+                            <img src="assets/img/delete.jpg" style="width: 20px; height: 20px"/>
+                        </a></td>
                 </tr>
                 <%
                     }
                 %>
             </tbody>
-
         </table>
 
         <% }%>
+        <% } else {
+        %>
+        You do not have permission to access this content.
+        <%
+    }%>
     </body>
 </html>

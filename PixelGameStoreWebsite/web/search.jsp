@@ -38,6 +38,10 @@
             <input type="submit" value="Search"/>
         </form>
 
+            
+            <a href="gameForm.jsp">
+                Add
+            </a>
         <%
             if (request.getAttribute("listGame") != null) {
                 List<GameDTO> listGame = (List<GameDTO>) request.getAttribute("listGame");

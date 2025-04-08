@@ -20,37 +20,37 @@ public class MainController extends HttpServlet {
     private static final String LOGIN = "login.jsp";
     private static final UserDAO udao = new UserDAO();
     private static final GameDAO gameDAO = new GameDAO();
-    
+
     /**
-     * 
+     *
      * @param strUserID
-     * @return 
+     * @return
      */
-    public UserDTO getUserDTO(String strUserID){
+    public UserDTO getUserDTO(String strUserID) {
         UserDTO user = udao.readById(strUserID);
         return user;
     }
-    
+
     /**
-     * 
+     *
      * @param strUserID
      * @param strPassword
-     * @return 
+     * @return
      */
-    public boolean isValidLogin(String strUserID, String strPassword){
-       UserDTO user = getUserDTO(strUserID);
-       return user != null && user.getPassword().equals(strPassword);
+    public boolean isValidLogin(String strUserID, String strPassword) {
+        UserDTO user = getUserDTO(strUserID);
+        return user != null && user.getPassword().equals(strPassword);
     }
-    
+
     /**
-     * 
+     *
      * @param request
      * @param response
      * @throws ServletException
-     * @throws IOException 
+     * @throws IOException
      */
-    public void processSearch(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException{
+    public void processSearch(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String searchTerm = request.getParameter("searchTerm");
         if (searchTerm == null) {
             searchTerm = "";
@@ -59,13 +59,13 @@ public class MainController extends HttpServlet {
         request.setAttribute("searchTerm", searchTerm);
         request.setAttribute("listGame", listGame);
     }
-    
+
     /**
-     * 
+     *
      * @param request
      * @param response
      * @throws ServletException
-     * @throws IOException 
+     * @throws IOException
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -75,7 +75,7 @@ public class MainController extends HttpServlet {
             String action = request.getParameter("action");
             if (action == null) {
                 url = LOGIN;
-            }else{
+            } else {
                 if (action.equals("login")) {
                     String strUserID = request.getParameter("txtUserID");
                     String strPassword = request.getParameter("txtPassword");
@@ -83,38 +83,56 @@ public class MainController extends HttpServlet {
                         url = "search.jsp";
                         UserDTO user = getUserDTO(strUserID);
                         request.getSession().setAttribute("user", user);
-                        
+
                         processSearch(request, response);
-                    }else{
+                    } else {
                         url = LOGIN;
                         request.setAttribute("message", "Incorrect UserID or Password!");
                     }
-                }else if (action.equals("logout")) {
+                } else if (action.equals("logout")) {
                     url = LOGIN;
                     request.getSession().invalidate();
-                }else if (action.equals("search")) {
+                } else if (action.equals("search")) {
                     processSearch(request, response);
                     url = "search.jsp";
-                }else if (action.equals("delete")) {
+                } else if (action.equals("delete")) {
                     String id = request.getParameter("id");
                     gameDAO.delete(id);
-                    
+
                     processSearch(request, response);
                     url = "search.jsp";
-                }else if (action.equals("add")) {
-                    String gameID = request.getParameter("txtGameID");
-                    String gameName = request.getParameter("txtGameName");
-                    String developer = request.getParameter("txtDeveloper");
-                    String genre = request.getParameter("txtGenre");
-                    double price = Double.parseDouble(request.getParameter("txtPrice"));
-                    
-                    processSearch(request, response);
-                    url = "search.jsp";
+                } else if (action.equals("add")) {
+                    try {
+                        boolean checkError = false;
+
+                        String gameID = request.getParameter("txtGameID");
+                        String gameName = request.getParameter("txtGameName");
+                        String developer = request.getParameter("txtDeveloper");
+                        String genre = request.getParameter("txtGenre");
+                        double price = Double.parseDouble(request.getParameter("txtPrice"));
+
+                        if (gameID == null || gameID.trim().isEmpty()) {
+                            checkError = true;
+                            request.setAttribute("gameID_error", "Game ID cannot be empty.");
+                        }
+                        
+                        GameDTO game = new GameDTO(gameID, gameName, developer, genre, price, true);
+                        if (!checkError) {
+                            gameDAO.create(game);
+                            processSearch(request, response);
+                            url = "search.jsp";
+                        }else{
+                            request.setAttribute("game", game);
+                            url = "gameForm.jsp";
+                        }
+                    } catch (Exception e) {
+                    }
+
                 }
             }
         } catch (Exception e) {
             log("Error at MainController: " + e.toString());
-        } finally{
+        } finally {
             RequestDispatcher rd = request.getRequestDispatcher(url);
             rd.forward(request, response);
         }

@@ -20,6 +20,25 @@ public class GameDAO implements IDAO<GameDTO, String>{
      */
     @Override
     public boolean create(GameDTO entity) {
+        String query = "INSERT INTO tblGames "
+                + "(gameID, gameName, developer, genre, price, status)"
+                + "VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            Connection conn = DBUtils.getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, entity.getGameID());
+            ps.setString(2, entity.getGameName());
+            ps.setString(3, entity.getDeveloper());
+            ps.setString(4, entity.getGenre());
+            ps.setDouble(5, entity.getPrice());
+            ps.setBoolean(6, entity.isStatus());
+            int i = ps.executeUpdate();
+            return i > 0;
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(GameDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(GameDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return false;
     }
 

@@ -2,7 +2,6 @@ create table tblGames(
 	gameID char(10) PRIMARY KEY,
 	gameName nvarchar(200) NOT NULL,
 	developer nvarchar(100) NOT NULL,
-	
 	genre nvarchar(200) NOT NULL,
 	price DECIMAL(10,2)
 );

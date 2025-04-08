@@ -9,6 +9,11 @@ public class GameDTO {
     private boolean status;
 
     public GameDTO() {
+        this.gameID = "";
+        this.gameName = "";
+        this.developer = "";
+        this.genre = "";
+        this.price = 0.0;
     }
 
     public GameDTO(String gameID, String gameName, String developer, String genre, double price, boolean status) {

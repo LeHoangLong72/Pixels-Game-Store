@@ -4,6 +4,8 @@
     Author     : LAM
 --%>
 
+<%@page import="utils.AuthUtils"%>
+<%@page import="dto.UserDTO"%>
 <%@page import="dto.GameDTO"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -13,6 +15,11 @@
         <title>JSP Page</title>
     </head>
     <body>
+
+        <%
+            if (AuthUtils.isAdmin(session)) {
+        %>
+
         <%
             GameDTO game = new GameDTO();
             try {
@@ -28,13 +35,13 @@
 
             String gameName_error = request.getAttribute("gameName_error") + "";
             gameName_error = gameName_error.equals("null") ? "" : gameName_error;
-            
+
             String developer_error = request.getAttribute("developer_error") + "";
             developer_error = developer_error.equals("null") ? "" : developer_error;
-            
+
             String genre_error = request.getAttribute("genre_error") + "";
             genre_error = genre_error.equals("null") ? "" : genre_error;
-            
+
             String price_error = request.getAttribute("price_error") + "";
             price_error = price_error.equals("null") ? "" : price_error;
         %>
@@ -54,5 +61,12 @@
             <input type="submit" value="Save"/> 
             <input type="reset" value="Reset"/>
         </form>
+
+        <% } else {
+        %>
+        <p style="text-align: center"><img src="assets/img/403.jpg" alt="Status Code 403"/></p>
+
+        <%
+            }%>
     </body>
 </html>

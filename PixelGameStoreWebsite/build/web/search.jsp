@@ -4,6 +4,7 @@
     Author     : LAM
 --%>
 
+<%@page import="utils.AuthUtils"%>
 <%@page import="java.util.List"%>
 <%@page import="dto.GameDTO"%>
 <%@page import="dto.UserDTO"%>
@@ -16,15 +17,15 @@
     </head>
     <body>
         <%
-            if (session.getAttribute("user") != null) {
-                UserDTO user = (UserDTO) session.getAttribute("user");
+            if (AuthUtils.isLoggedIn(session)) {
+                 UserDTO user = AuthUtils.getUserDTO(session);
         %>
 
         <h1>Welcome <%=user.getFullName()%> </h1>
-        
-        <% 
-        String searchTerm = request.getAttribute("searchTerm") + ""; 
-        searchTerm = searchTerm.equals("null") ? "" : searchTerm;
+
+        <%
+            String searchTerm = request.getAttribute("searchTerm") + "";
+            searchTerm = searchTerm.equals("null") ? "" : searchTerm;
         %>
 
         <form action="MainController">
@@ -38,10 +39,16 @@
             <input type="submit" value="Search"/>
         </form>
 
-            
-            <a href="gameForm.jsp">
-                Add
-            </a>
+        <%
+            if (AuthUtils.isAdmin(session)) {
+        %>
+        <a href="gameForm.jsp">
+            Add
+        </a>
+
+        <%
+            }
+        %>
         <%
             if (request.getAttribute("listGame") != null) {
                 List<GameDTO> listGame = (List<GameDTO>) request.getAttribute("listGame");
@@ -56,7 +63,13 @@
                     <th>Developer</th>
                     <th>Genre</th>
                     <th>Price</th>
+                        <%
+                            if (AuthUtils.isAdmin(session)) {
+                        %>
                     <th>Action</th>
+
+                    <%}
+                    %>
                 </tr>
             </thead>
 
@@ -72,9 +85,17 @@
                     <td><%=game.getDeveloper()%></td>
                     <td><%=game.getGenre()%></td>
                     <td><%=game.getPrice()%>$</td>
+
+                    <%
+                        if (AuthUtils.isAdmin(session)) {
+                            
+                    %>
                     <td><a href="MainController?action=delete&id=<%=game.getGameID()%>&searchTerm=<%=searchTerm%>">
                             <img src="assets/img/delete.jpg" style="width: 20px; height: 20px"/>
                         </a></td>
+
+                    <%}
+                        %>
                 </tr>
                 <%
                     }
@@ -87,6 +108,6 @@
         %>
         You do not have permission to access this content.
         <%
-    }%>
+            }%>
     </body>
 </html>

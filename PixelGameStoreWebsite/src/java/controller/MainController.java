@@ -13,6 +13,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import utils.AuthUtils;
 
 @WebServlet(name = "MainController", urlPatterns = {"/MainController"})
 public class MainController extends HttpServlet {
@@ -21,26 +23,8 @@ public class MainController extends HttpServlet {
     private static final UserDAO udao = new UserDAO();
     private static final GameDAO gameDAO = new GameDAO();
 
-    /**
-     *
-     * @param strUserID
-     * @return
-     */
-    public UserDTO getUserDTO(String strUserID) {
-        UserDTO user = udao.readById(strUserID);
-        return user;
-    }
-
-    /**
-     *
-     * @param strUserID
-     * @param strPassword
-     * @return
-     */
-    public boolean isValidLogin(String strUserID, String strPassword) {
-        UserDTO user = getUserDTO(strUserID);
-        return user != null && user.getPassword().equals(strPassword);
-    }
+    
+    
 
     /**
      *
@@ -79,9 +63,9 @@ public class MainController extends HttpServlet {
                 if (action.equals("login")) {
                     String strUserID = request.getParameter("txtUserID");
                     String strPassword = request.getParameter("txtPassword");
-                    if (isValidLogin(strUserID, strPassword)) {
+                    if (AuthUtils.isValidLogin(strUserID, strPassword)) {
                         url = "search.jsp";
-                        UserDTO user = getUserDTO(strUserID);
+                        UserDTO user = AuthUtils.getUserDTO(strUserID);
                         request.getSession().setAttribute("user", user);
 
                         processSearch(request, response);
@@ -90,64 +74,74 @@ public class MainController extends HttpServlet {
                         request.setAttribute("message", "Incorrect UserID or Password!");
                     }
                 } else if (action.equals("logout")) {
-                    url = LOGIN;
-                    request.getSession().invalidate();
-                } else if (action.equals("search")) {
-                    processSearch(request, response);
-                    url = "search.jsp";
-                } else if (action.equals("delete")) {
-                    String id = request.getParameter("id");
-                    gameDAO.delete(id);
-
-                    processSearch(request, response);
-                    url = "search.jsp";
-                } else if (action.equals("add")) {
-                    try {
-                        boolean checkError = false;
-
-                        String gameID = request.getParameter("txtGameID");
-                        String gameName = request.getParameter("txtGameName");
-                        String developer = request.getParameter("txtDeveloper");
-                        String genre = request.getParameter("txtGenre");
-                        double price = Double.parseDouble(request.getParameter("txtPrice"));
-
-                        if (gameID == null || gameID.trim().isEmpty()) {
-                            checkError = true;
-                            request.setAttribute("gameID_error", "Game ID cannot be empty.");
-                        }
-
-                        if (gameName == null || gameName.trim().isEmpty()) {
-                            checkError = true;
-                            request.setAttribute("gameName_error", "Game Name cannot be empty.");
-                        }
-
-                        if (developer == null || developer.trim().isEmpty()) {
-                            checkError = true;
-                            request.setAttribute("developer_error", "Developer cannot be empty.");
-                        }
-
-                        if (genre == null || genre.trim().isEmpty()) {
-                            checkError = true;
-                            request.setAttribute("genre_error", "Genre cannot be empty.");
-                        }
-
-                        if (price < 0) {
-                            checkError = true;
-                            request.setAttribute("price_error", "Price cannot be negative.");
-                        }
-
-                        GameDTO game = new GameDTO(gameID, gameName, developer, genre, price, true);
-                        if (!checkError) {
-                            gameDAO.create(game);
-                            processSearch(request, response);
-                            url = "search.jsp";
-                        } else {
-                            request.setAttribute("game", game);
-                            url = "gameForm.jsp";
-                        }
-                    } catch (Exception e) {
+                    HttpSession session = request.getSession();
+                    if (AuthUtils.isLoggedIn(session)) {
+                        url = LOGIN;
+                        request.getSession().invalidate();
                     }
+                } else if (action.equals("search")) {
+                    HttpSession session = request.getSession();
+                    if (AuthUtils.isLoggedIn(session)) {
+                        processSearch(request, response);
+                        url = "search.jsp";
+                    }
+                } else if (action.equals("delete")) {
+                    HttpSession session = request.getSession();
+                    if (AuthUtils.isAdmin(session)) {
+                        String id = request.getParameter("id");
+                        gameDAO.delete(id);
+                        processSearch(request, response);
+                        url = "search.jsp";
+                    }
+                } else if (action.equals("add")) {
+                    HttpSession session = request.getSession();
+                    if (AuthUtils.isAdmin(session)) {
+                        try {
+                            boolean checkError = false;
 
+                            String gameID = request.getParameter("txtGameID");
+                            String gameName = request.getParameter("txtGameName");
+                            String developer = request.getParameter("txtDeveloper");
+                            String genre = request.getParameter("txtGenre");
+                            double price = Double.parseDouble(request.getParameter("txtPrice"));
+
+                            if (gameID == null || gameID.trim().isEmpty()) {
+                                checkError = true;
+                                request.setAttribute("gameID_error", "Game ID cannot be empty.");
+                            }
+
+                            if (gameName == null || gameName.trim().isEmpty()) {
+                                checkError = true;
+                                request.setAttribute("gameName_error", "Game Name cannot be empty.");
+                            }
+
+                            if (developer == null || developer.trim().isEmpty()) {
+                                checkError = true;
+                                request.setAttribute("developer_error", "Developer cannot be empty.");
+                            }
+
+                            if (genre == null || genre.trim().isEmpty()) {
+                                checkError = true;
+                                request.setAttribute("genre_error", "Genre cannot be empty.");
+                            }
+
+                            if (price < 0) {
+                                checkError = true;
+                                request.setAttribute("price_error", "Price cannot be negative.");
+                            }
+
+                            GameDTO game = new GameDTO(gameID, gameName, developer, genre, price, true);
+                            if (!checkError) {
+                                gameDAO.create(game);
+                                processSearch(request, response);
+                                url = "search.jsp";
+                            } else {
+                                request.setAttribute("game", game);
+                                url = "gameForm.jsp";
+                            }
+                        } catch (Exception e) {
+                        }
+                    }
                 }
             }
         } catch (Exception e) {

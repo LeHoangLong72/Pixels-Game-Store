@@ -115,13 +115,33 @@ public class MainController extends HttpServlet {
                             checkError = true;
                             request.setAttribute("gameID_error", "Game ID cannot be empty.");
                         }
-                        
+
+                        if (gameName == null || gameName.trim().isEmpty()) {
+                            checkError = true;
+                            request.setAttribute("gameName_error", "Game Name cannot be empty.");
+                        }
+
+                        if (developer == null || developer.trim().isEmpty()) {
+                            checkError = true;
+                            request.setAttribute("developer_error", "Developer cannot be empty.");
+                        }
+
+                        if (genre == null || genre.trim().isEmpty()) {
+                            checkError = true;
+                            request.setAttribute("genre_error", "Genre cannot be empty.");
+                        }
+
+                        if (price < 0) {
+                            checkError = true;
+                            request.setAttribute("price_error", "Price cannot be negative.");
+                        }
+
                         GameDTO game = new GameDTO(gameID, gameName, developer, genre, price, true);
                         if (!checkError) {
                             gameDAO.create(game);
                             processSearch(request, response);
                             url = "search.jsp";
-                        }else{
+                        } else {
                             request.setAttribute("game", game);
                             url = "gameForm.jsp";
                         }

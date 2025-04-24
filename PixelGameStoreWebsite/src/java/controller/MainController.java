@@ -68,9 +68,9 @@ public class MainController extends HttpServlet {
             if (searchTerm == null) {
                 searchTerm = "";
             }
-            List<GameDTO> listGame = gameDAO.search(searchTerm);
+            List<GameDTO> games = gameDAO.search(searchTerm);
             request.setAttribute("searchTerm", searchTerm);
-            request.setAttribute("listGame", listGame);
+            request.setAttribute("games", games);
             url = "search.jsp";
         }
         return url;

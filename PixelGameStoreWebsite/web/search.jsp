@@ -9,6 +9,7 @@
 <%@page import="dto.GameDTO"%>
 <%@page import="dto.UserDTO"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -16,98 +17,78 @@
         <title>Main Page</title>
     </head>
     <body>
-        <%
-            if (AuthUtils.isLoggedIn(session)) {
-                 UserDTO user = AuthUtils.getUserDTO(session);
-        %>
+        <c:if test="${not empty sessionScope.user}">
+            <h1>Welcome ${user.fullName} </h1>
 
-        <h1>Welcome <%=user.getFullName()%> </h1>
+            <c:set var="searchTerm" value="${requestScope.searchTerm == null ? '' : requestScope.searchTerm}" />
 
-        <%
-            String searchTerm = request.getAttribute("searchTerm") + "";
-            searchTerm = searchTerm.equals("null") ? "" : searchTerm;
-        %>
+            <form action="MainController">
+                <input type="hidden" name="action" value="logout"/>
+                <input type="submit" value="Logout"/>
+            </form>
 
-        <form action="MainController">
-            <input type="hidden" name="action" value="logout"/>
-            <input type="submit" value="Logout"/>
-        </form>
+            <form action="MainController">
+                <input type="hidden" name="action" value="search"/>
+                Search: <input type="text" name="searchTerm" value="${searchTerm}"/>
+                <input type="submit" value="Search"/>
+            </form>
 
-        <form action="MainController">
-            <input type="hidden" name="action" value="search"/>
-            Search: <input type="text" name="searchTerm" value="<%=searchTerm%>"/>
-            <input type="submit" value="Search"/>
-        </form>
 
-        <%
-            if (AuthUtils.isAdmin(session)) {
-        %>
-        <a href="gameForm.jsp">
-            Add
-        </a>
 
-        <%
-            }
-        %>
-        <%
-            if (request.getAttribute("listGame") != null) {
-                List<GameDTO> listGame = (List<GameDTO>) request.getAttribute("listGame");
-        %>
+            <c:set var="isAdmin" value="<%=AuthUtils.isAdmin(session)%>"/> 
+            <c:if test="${isAdmin}">
+                <a href="gameForm.jsp">
+                    Add
+                </a>
+            </c:if>
 
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Developer</th>
-                    <th>Genre</th>
-                    <th>Price</th>
-                        <%
-                            if (AuthUtils.isAdmin(session)) {
-                        %>
-                    <th>Action</th>
+            <c:if test="${not empty requestScope.games}">
 
-                    <%}
-                    %>
-                </tr>
-            </thead>
-
-            <tbody>
-                <%                    int i = 0;
-                    for (GameDTO game : listGame) {
-                        i++;
-                %>
-                <tr>
-                    <td><%=i%></td>
-                    <td><%=game.getGameID()%></td>
-                    <td><%=game.getGameName()%></td>
-                    <td><%=game.getDeveloper()%></td>
-                    <td><%=game.getGenre()%></td>
-                    <td><%=game.getPrice()%>$</td>
-
-                    <%
-                        if (AuthUtils.isAdmin(session)) {
+                <table border="1">
+                    <thead>
+                        <tr>
                             
-                    %>
-                    <td><a href="MainController?action=delete&id=<%=game.getGameID()%>&searchTerm=<%=searchTerm%>">
-                            <img src="assets/img/delete.jpg" style="width: 20px; height: 20px"/>
-                        </a></td>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Developer</th>
+                            <th>Genre</th>
+                            <th>Price</th>
+                                
+                                <c:if test="${isAdmin}">
+                                <th>Action</th>
 
-                    <%}
-                        %>
-                </tr>
-                <%
-                    }
-                %>
-            </tbody>
-        </table>
+                            </c:if>
+                        </tr>
+                    </thead>
 
-        <% }%>
-        <% } else {
-        %>
-        You do not have permission to access this content.
-        <%
-            }%>
+                    <tbody>
+                        
+                        <c:forEach var="g" items="${requestScope.games}">
+                            
+                        <tr>
+                            
+                            <td>${g.gameID}</td>
+                            <td>${g.gameName}</td>
+                            <td>${g.developer}</td>
+                            <td>${g.genre}</td>
+                            <td>${g.price}$</td>
+
+
+                            <c:if test="${isAdmin}">
+                                <td><a href="MainController?action=delete&id=${g.gameID}&searchTerm=${searchTerm}">
+                                        <img src="assets/img/delete.jpg" style="width: 20px; height: 20px"/>
+                                    </a></td>
+
+                            </c:if>
+                        </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+
+            </c:if>
+            <c:if test="${not isAdmin}">
+                You do not have permission to access this content.
+            </c:if>
+        </c:if>
     </body>
 </html>

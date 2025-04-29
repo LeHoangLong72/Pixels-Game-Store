@@ -19,6 +19,7 @@
 
 
         <c:set var="isAdmin" value="<%=AuthUtils.isAdmin(session)%>"/>
+        
         <c:if test="${isAdmin}">
             <jsp:useBean id="game" class="dto.GameDTO" scope="request">
 
@@ -40,7 +41,7 @@
                     <c:if test="${not empty requestScope.genre_error}">
                         <span style="color: red">${requestScope.genre_error}</span><br/>
                     </c:if>
-                    Price: <input type="number" name="txtPrice" value="${game.price}"/><br/>
+                    Price: <input type="text" name="txtPrice" value="${game.price}"/><br/>
                     <c:if test="${not empty requestScope.price_error}">
                         <span style="color: red">${requestScope.price_error}</span><br/>
                     </c:if>

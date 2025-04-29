@@ -7,6 +7,7 @@ public class GameDTO {
     private String genre;
     private double price;
     private boolean status;
+    private String image;
 
     public GameDTO() {
         this.gameID = "";
@@ -14,15 +15,17 @@ public class GameDTO {
         this.developer = "";
         this.genre = "";
         this.price = 0.0;
+        this.image = "";
     }
 
-    public GameDTO(String gameID, String gameName, String developer, String genre, double price, boolean status) {
+    public GameDTO(String gameID, String gameName, String developer, String genre, double price, boolean status, String image) {
         this.gameID = gameID;
         this.gameName = gameName;
         this.developer = developer;
         this.genre = genre;
         this.price = price;
         this.status = status;
+        this.image = image;
     }
 
     public String getGameID() {
@@ -72,4 +75,13 @@ public class GameDTO {
     public void setStatus(boolean status) {
         this.status = status;
     }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+    
 }

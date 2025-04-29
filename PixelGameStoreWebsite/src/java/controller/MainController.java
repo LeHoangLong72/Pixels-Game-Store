@@ -102,6 +102,7 @@ public class MainController extends HttpServlet {
                 String developer = request.getParameter("txtDeveloper");
                 String genre = request.getParameter("txtGenre");
                 double price = Double.parseDouble(request.getParameter("txtPrice"));
+                String image = request.getParameter("txtImage");
 
                 if (gameID == null || gameID.trim().isEmpty()) {
                     checkError = true;
@@ -127,8 +128,10 @@ public class MainController extends HttpServlet {
                     checkError = true;
                     request.setAttribute("price_error", "Price cannot be negative.");
                 }
+                
+                
 
-                GameDTO game = new GameDTO(gameID, gameName, developer, genre, price, true);
+                GameDTO game = new GameDTO(gameID, gameName, developer, genre, price, true, image);
                 if (!checkError) {
                     gameDAO.create(game);
                     processSearch(request, response);
@@ -139,6 +142,20 @@ public class MainController extends HttpServlet {
                 }
             } catch (Exception e) {
             }
+        }
+        return url;
+    }
+    
+    private String processEdit(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException{
+        String url = LOGIN;
+        HttpSession session = request.getSession();
+        if (AuthUtils.isAdmin(session)) {
+            String id = request.getParameter("id");
+            GameDTO game = gameDAO.readById(id);
+            
+            url = "search.jsp";
+            processSearch(request, response);
         }
         return url;
     }
@@ -169,6 +186,8 @@ public class MainController extends HttpServlet {
                     url = processDelete(request, response);
                 } else if (action.equals("add")) {
                     url = processAdd(request, response);
+                } else if (action.equals("edit")) {
+                    url = processEdit(request, response);
                 }
             }
         } catch (Exception e) {

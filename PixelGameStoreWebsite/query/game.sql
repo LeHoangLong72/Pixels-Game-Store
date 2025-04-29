@@ -19,6 +19,9 @@ insert into tblGames(gameID, gameName, developer, genre, price) VALUES
 
 alter table tblGames add status bit;
 
+ALTER TABLE dbo.tblGames
+ADD [image] [text] Null; 
+
  
 
 

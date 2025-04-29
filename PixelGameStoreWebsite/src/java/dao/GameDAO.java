@@ -22,7 +22,7 @@ public class GameDAO implements IDAO<GameDTO, String>{
     public boolean create(GameDTO entity) {
         String query = "INSERT INTO tblGames "
                 + "(gameID, gameName, developer, genre, price, status)"
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, ?,?)";
         try {
             Connection conn = DBUtils.getConnection();
             PreparedStatement ps = conn.prepareStatement(query);
@@ -32,6 +32,7 @@ public class GameDAO implements IDAO<GameDTO, String>{
             ps.setString(4, entity.getGenre());
             ps.setDouble(5, entity.getPrice());
             ps.setBoolean(6, entity.isStatus());
+            ps.setString(7, entity.getImage());
             int i = ps.executeUpdate();
             return i > 0;
         } catch (ClassNotFoundException ex) {
@@ -58,6 +59,28 @@ public class GameDAO implements IDAO<GameDTO, String>{
      */
     @Override
     public GameDTO readById(String id) {
+        String query = "SELECT * FROM tblGames WHERE gameID = ?";
+        try {
+            Connection conn = DBUtils.getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {                
+                GameDTO game = new GameDTO(
+                        rs.getString("gameID"), 
+                        rs.getString("gameName"), 
+                        rs.getString("developer"), 
+                        rs.getString("genre"), 
+                        rs.getDouble("price"), 
+                        rs.getBoolean("status"), 
+                        rs.getString("image"));
+                return game;
+            }
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(GameDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(GameDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return null;
     }
 
@@ -114,7 +137,8 @@ public class GameDAO implements IDAO<GameDTO, String>{
                         rs.getString("developer"), 
                         rs.getString("genre"), 
                         rs.getDouble("price"),
-                        rs.getBoolean("status"));
+                        rs.getBoolean("status"),
+                        rs.getString("image"));
                 list.add(game);
             }
         } catch (ClassNotFoundException ex) {

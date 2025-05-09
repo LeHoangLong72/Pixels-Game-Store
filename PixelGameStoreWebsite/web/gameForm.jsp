@@ -21,10 +21,32 @@
         <c:set var="isAdmin" value="<%=AuthUtils.isAdmin(session)%>"/>
         
         <c:if test="${isAdmin}">
-            <jsp:useBean id="game" class="dto.GameDTO" scope="request">
+            <% 
+//                GameDTO game = new GameDTO();
+//                if (request.getAttribute("game") != null) {
+//                    game = (GameDTO) request.getAttribute("game");
+//                }else{
+//                    game = new GameDTO();
+//                }
 
+                GameDTO game = new GameDTO();
+                if (request.getAttribute("game") == null) {
+                        request.setAttribute("game", new GameDTO());
+                        game = new GameDTO();
+                }else{
+                    game = (GameDTO) request.getAttribute("game");
+                }
+                
+                
+                String action = request.getAttribute("action") + "";
+                if (!action.equals("update")) {
+                     action = "add";   
+                }
+               
+               
+            %>
                 <form action="MainController" method="post">
-                    <input type="hidden" name="action" value="add"/>
+                    <input type="hidden" name="action" value="<%=action%>"/>
                     Game ID: <input type="text" name="txtGameID" value="${game.gameID}"/><br/>
                     <c:if test="${not empty requestScope.gameID_error}">
                         <span style="color: red">${requestScope.gameID_error}</span><br/>
@@ -45,10 +67,14 @@
                     <c:if test="${not empty requestScope.price_error}">
                         <span style="color: red">${requestScope.price_error}</span><br/>
                     </c:if>
+                    Image: <input type="text" name="txtImage" value="${game.image}"/><br/>
+                    <c:if test="${not empty requestScope.image_error}">
+                        <span style="color: red">${requestScope.image_error}</span>
+                    </c:if>
                     <input type="submit" value="Save"/> 
                     <input type="reset" value="Reset"/>
                 </form>
-            </jsp:useBean>
+            
         </c:if>
         <c:if test="${not isAdmin}">
 

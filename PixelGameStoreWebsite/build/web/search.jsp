@@ -83,7 +83,8 @@
                                     </a>
                                 <a href="MainController?action=edit&id=${g.gameID}&searchTerm=${searchTerm}">
                                         <img src="assets/img/edit.jpg" style="width: 30px; height: 30px"/>
-                                    </a></td>
+                                    </a>
+                                </td>
 
                             </c:if>
                         </tr>

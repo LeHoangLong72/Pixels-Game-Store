@@ -28,7 +28,7 @@ public class AuthUtils {
     
     public static boolean isValidLogin(String strUserID, String strPassword) {
         UserDTO user = getUserDTO(strUserID);
-        return user != null && user.getPassword().equals(strPassword);
+        return user != null && PasswordUtils.checkPassword(strPassword, user.getPassword());
     }
     
     /**

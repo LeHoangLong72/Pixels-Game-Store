@@ -129,8 +129,11 @@ public class MainController extends HttpServlet {
                     request.setAttribute("price_error", "Price cannot be negative.");
                 }
                 
+                if (image == null || image.trim().isEmpty()) {
+                    checkError = true;
+                    request.setAttribute("image_error", "Image cannot be empty.");
+                }
                 
-
                 GameDTO game = new GameDTO(gameID, gameName, developer, genre, price, true, image);
                 if (!checkError) {
                     gameDAO.create(game);
@@ -145,20 +148,90 @@ public class MainController extends HttpServlet {
         }
         return url;
     }
-    
+
     private String processEdit(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException{
+            throws ServletException, IOException {
         String url = LOGIN;
         HttpSession session = request.getSession();
         if (AuthUtils.isAdmin(session)) {
             String id = request.getParameter("id");
             GameDTO game = gameDAO.readById(id);
-            
-            url = "search.jsp";
-            processSearch(request, response);
+            if (game != null) {
+                request.setAttribute("action", "update");
+                request.setAttribute("game", game);
+                url = "gameForm.jsp";
+                
+            } else {
+                // search
+                url = "search.jsp";
+                processSearch(request, response);
+            }
+
         }
         return url;
     }
+    
+     private String processUpdate(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String url = LOGIN;
+        HttpSession session = request.getSession();
+        if (AuthUtils.isAdmin(session)) {
+            try {
+                boolean checkError = false;
+
+                String gameID = request.getParameter("txtGameID");
+                String gameName = request.getParameter("txtGameName");
+                String developer = request.getParameter("txtDeveloper");
+                String genre = request.getParameter("txtGenre");
+                double price = Double.parseDouble(request.getParameter("txtPrice"));
+                String image = request.getParameter("txtImage");
+
+                if (gameID == null || gameID.trim().isEmpty()) {
+                    checkError = true;
+                    request.setAttribute("gameID_error", "Game ID cannot be empty.");
+                }
+
+                if (gameName == null || gameName.trim().isEmpty()) {
+                    checkError = true;
+                    request.setAttribute("gameName_error", "Game Name cannot be empty.");
+                }
+
+                if (developer == null || developer.trim().isEmpty()) {
+                    checkError = true;
+                    request.setAttribute("developer_error", "Developer cannot be empty.");
+                }
+
+                if (genre == null || genre.trim().isEmpty()) {
+                    checkError = true;
+                    request.setAttribute("genre_error", "Genre cannot be empty.");
+                }
+
+                if (price < 0) {
+                    checkError = true;
+                    request.setAttribute("price_error", "Price cannot be negative.");
+                }
+                
+                if (image == null || image.trim().isEmpty()) {
+                    checkError = true;
+                    request.setAttribute("image_error", "Image cannot be empty.");
+                }
+                
+                GameDTO game = new GameDTO(gameID, gameName, developer, genre, price, true, image);
+                if (!checkError) {
+                    gameDAO.update(game);
+                    processSearch(request, response);
+                    url = processSearch(request, response);
+                } else {
+                    request.setAttribute("action", "update");
+                    request.setAttribute("game", game);
+                    url = "gameForm.jsp";
+                }
+            } catch (Exception e) {
+            }
+        }
+        return url;
+    }
+    
 
     /**
      *
@@ -169,6 +242,7 @@ public class MainController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         String url = LOGIN;
         try {
@@ -188,6 +262,8 @@ public class MainController extends HttpServlet {
                     url = processAdd(request, response);
                 } else if (action.equals("edit")) {
                     url = processEdit(request, response);
+                }else if (action.equals("update")) {
+                    url = processUpdate(request, response);
                 }
             }
         } catch (Exception e) {

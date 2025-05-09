@@ -1,6 +1,7 @@
 package dao;
 
 import dto.GameDTO;
+import java.awt.print.Book;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -91,6 +92,30 @@ public class GameDAO implements IDAO<GameDTO, String>{
      */
     @Override
     public boolean update(GameDTO entity) {
+        String query = "UPDATE tblGames SET "
+                + "gameName = ?,"
+                + "developer = ?,"
+                + "genre = ?,"
+                + "price = ?,"
+                + "status = ?,"
+                + "image = ?"
+                + " WHERE gameID = ?";
+               
+        try {
+            Connection conn = DBUtils.getConnection();
+            PreparedStatement ps = conn.prepareStatement(query);
+            ps.setString(1, entity.getGameName());
+            ps.setString(2, entity.getDeveloper());
+            ps.setString(3, entity.getGenre());
+            ps.setDouble(4, entity.getPrice());
+            ps.setBoolean(5, entity.isStatus());
+            ps.setString(6, entity.getImage());
+            ps.setString(7, entity.getGameID());
+            int i = ps.executeUpdate();
+            return i > 0;
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
         return false;
     }
 
@@ -149,6 +174,20 @@ public class GameDAO implements IDAO<GameDTO, String>{
         return list;
     }
     
+    public GameDTO getGameByID(String gameID){
+        return readById(gameID);
+    }
     
+    public boolean addGame(GameDTO game){
+        return create(game);
+    }
+    
+    public boolean updateGame(GameDTO game){
+        return update(game);
+    }
+    
+    public boolean deleteGame(String gameID){
+        return delete(gameID);
+    }
     
 }
